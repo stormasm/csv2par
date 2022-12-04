@@ -174,17 +174,32 @@ fn main() -> Result<(), ParquetError> {
         }
     }
 
-    let schema_ref = Arc::new(schema);
-    let builder = ReaderBuilder::new()
-        .has_header(opts.header.unwrap_or(true))
-        .with_delimiter(opts.delimiter as u8)
-        .with_schema(schema_ref);
-
-    let reader = builder.build(input)?;
-
-    let output = File::create(opts.output)?;
-
     let mut props = WriterProperties::builder().set_dictionary_enabled(opts.dictionary);
+
+    if let Some(size) = opts.write_batch_size {
+        props = props.set_write_batch_size(size);
+    }
+
+    if let Some(size) = opts.data_pagesize_limit {
+        props = props.set_data_pagesize_limit(size);
+    }
+
+    if let Some(size) = opts.dictionary_pagesize_limit {
+        props = props.set_dictionary_pagesize_limit(size);
+    }
+
+    if let Some(size) = opts.dictionary_pagesize_limit {
+        props = props.set_dictionary_pagesize_limit(size);
+    }
+
+    if let Some(size) = opts.max_row_group_size {
+        props = props.set_max_row_group_size(size);
+    }
+
+    if let Some(created_by) = opts.created_by {
+        props = props.set_created_by(created_by);
+    }
+
     /*
         if let Some(statistics) = opts.statistics {
             let statistics = match statistics {
@@ -224,34 +239,22 @@ fn main() -> Result<(), ParquetError> {
             props = props.set_encoding(encoding);
         }
     */
-    if let Some(size) = opts.write_batch_size {
-        props = props.set_write_batch_size(size);
-    }
-
-    if let Some(size) = opts.data_pagesize_limit {
-        props = props.set_data_pagesize_limit(size);
-    }
-
-    if let Some(size) = opts.dictionary_pagesize_limit {
-        props = props.set_dictionary_pagesize_limit(size);
-    }
-
-    if let Some(size) = opts.dictionary_pagesize_limit {
-        props = props.set_dictionary_pagesize_limit(size);
-    }
-
-    if let Some(size) = opts.max_row_group_size {
-        props = props.set_max_row_group_size(size);
-    }
-
-    if let Some(created_by) = opts.created_by {
-        props = props.set_created_by(created_by);
-    }
     /*
         if let Some(size) = opts.max_statistics_size {
             props = props.set_max_statistics_size(size);
         }
     */
+
+    let schema_ref = Arc::new(schema);
+    let builder = ReaderBuilder::new()
+        .has_header(opts.header.unwrap_or(true))
+        .with_delimiter(opts.delimiter as u8)
+        .with_schema(schema_ref);
+
+    let reader = builder.build(input)?;
+
+    let output = File::create(opts.output)?;
+
     let mut writer = ArrowWriter::try_new(output, reader.schema(), Some(props.build()))?;
 
     for batch in reader {
