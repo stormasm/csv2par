@@ -2,14 +2,15 @@ use arrow::csv::ReaderBuilder;
 use clap::{Parser, ValueHint};
 use parquet::{
     arrow::ArrowWriter,
-    basic::{Compression, Encoding},
+    //   basic::{Compression, Encoding},
     errors::ParquetError,
-    file::properties::{EnabledStatistics, WriterProperties},
+    file::properties::WriterProperties,
 };
 use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+/*
 #[derive(clap::ValueEnum, Clone)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
 enum ParquetCompression {
@@ -21,6 +22,7 @@ enum ParquetCompression {
     LZ4,
     ZSTD,
 }
+
 
 #[derive(clap::ValueEnum, Clone)]
 #[allow(non_camel_case_types, clippy::upper_case_acronyms)]
@@ -41,6 +43,7 @@ enum ParquetEnabledStatistics {
     Chunk,
     Page,
 }
+*/
 
 #[derive(Parser)]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = "Dominik Moritz <domoritz@cmu.edu>")]
@@ -70,13 +73,16 @@ struct Opts {
     delimiter: char,
 
     /// Set the compression.
+    /*
     #[clap(short, long, value_enum)]
     compression: Option<ParquetCompression>,
+    */
 
     /// Sets encoding for any column.
-    #[clap(short, long, value_enum)]
-    encoding: Option<ParquetEncoding>,
-
+    /*
+        #[clap(short, long, value_enum)]
+        encoding: Option<ParquetEncoding>,
+    */
     /// Sets data page size limit.
     #[clap(long)]
     data_pagesize_limit: Option<usize>,
@@ -102,9 +108,10 @@ struct Opts {
     dictionary: bool,
 
     /// Sets flag to enable/disable statistics for any column.
-    #[clap(long, value_enum)]
-    statistics: Option<ParquetEnabledStatistics>,
-
+    /*
+        #[clap(long, value_enum)]
+        statistics: Option<ParquetEnabledStatistics>,
+    */
     /// Sets max statistics size for any column. Applicable only if statistics are enabled.
     #[clap(long)]
     max_statistics_size: Option<usize>,
@@ -178,45 +185,45 @@ fn main() -> Result<(), ParquetError> {
     let output = File::create(opts.output)?;
 
     let mut props = WriterProperties::builder().set_dictionary_enabled(opts.dictionary);
+    /*
+        if let Some(statistics) = opts.statistics {
+            let statistics = match statistics {
+                ParquetEnabledStatistics::Chunk => EnabledStatistics::Chunk,
+                ParquetEnabledStatistics::Page => EnabledStatistics::Page,
+                ParquetEnabledStatistics::None => EnabledStatistics::None,
+            };
 
-    if let Some(statistics) = opts.statistics {
-        let statistics = match statistics {
-            ParquetEnabledStatistics::Chunk => EnabledStatistics::Chunk,
-            ParquetEnabledStatistics::Page => EnabledStatistics::Page,
-            ParquetEnabledStatistics::None => EnabledStatistics::None,
-        };
+            props = props.set_statistics_enabled(statistics);
+        }
 
-        props = props.set_statistics_enabled(statistics);
-    }
+        if let Some(compression) = opts.compression {
+            let compression = match compression {
+                ParquetCompression::UNCOMPRESSED => Compression::UNCOMPRESSED,
+                ParquetCompression::SNAPPY => Compression::SNAPPY,
+                ParquetCompression::GZIP => Compression::GZIP,
+                ParquetCompression::LZO => Compression::LZO,
+                ParquetCompression::BROTLI => Compression::BROTLI,
+                ParquetCompression::LZ4 => Compression::LZ4,
+                ParquetCompression::ZSTD => Compression::ZSTD,
+            };
 
-    if let Some(compression) = opts.compression {
-        let compression = match compression {
-            ParquetCompression::UNCOMPRESSED => Compression::UNCOMPRESSED,
-            ParquetCompression::SNAPPY => Compression::SNAPPY,
-            ParquetCompression::GZIP => Compression::GZIP,
-            ParquetCompression::LZO => Compression::LZO,
-            ParquetCompression::BROTLI => Compression::BROTLI,
-            ParquetCompression::LZ4 => Compression::LZ4,
-            ParquetCompression::ZSTD => Compression::ZSTD,
-        };
+            props = props.set_compression(compression);
+        }
 
-        props = props.set_compression(compression);
-    }
+        if let Some(encoding) = opts.encoding {
+            let encoding = match encoding {
+                ParquetEncoding::PLAIN => Encoding::PLAIN,
+                ParquetEncoding::RLE => Encoding::RLE,
+                ParquetEncoding::BIT_PACKED => Encoding::BIT_PACKED,
+                ParquetEncoding::DELTA_BINARY_PACKED => Encoding::DELTA_BINARY_PACKED,
+                ParquetEncoding::DELTA_LENGTH_BYTE_ARRAY => Encoding::DELTA_LENGTH_BYTE_ARRAY,
+                ParquetEncoding::DELTA_BYTE_ARRAY => Encoding::DELTA_BYTE_ARRAY,
+                ParquetEncoding::RLE_DICTIONARY => Encoding::RLE_DICTIONARY,
+            };
 
-    if let Some(encoding) = opts.encoding {
-        let encoding = match encoding {
-            ParquetEncoding::PLAIN => Encoding::PLAIN,
-            ParquetEncoding::RLE => Encoding::RLE,
-            ParquetEncoding::BIT_PACKED => Encoding::BIT_PACKED,
-            ParquetEncoding::DELTA_BINARY_PACKED => Encoding::DELTA_BINARY_PACKED,
-            ParquetEncoding::DELTA_LENGTH_BYTE_ARRAY => Encoding::DELTA_LENGTH_BYTE_ARRAY,
-            ParquetEncoding::DELTA_BYTE_ARRAY => Encoding::DELTA_BYTE_ARRAY,
-            ParquetEncoding::RLE_DICTIONARY => Encoding::RLE_DICTIONARY,
-        };
-
-        props = props.set_encoding(encoding);
-    }
-
+            props = props.set_encoding(encoding);
+        }
+    */
     if let Some(size) = opts.write_batch_size {
         props = props.set_write_batch_size(size);
     }
