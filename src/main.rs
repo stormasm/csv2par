@@ -1,49 +1,9 @@
 use arrow::csv::ReaderBuilder;
 use clap::{Parser, ValueHint};
-use parquet::{
-    arrow::ArrowWriter,
-    //   basic::{Compression, Encoding},
-    errors::ParquetError,
-    file::properties::WriterProperties,
-};
+use parquet::{arrow::ArrowWriter, errors::ParquetError, file::properties::WriterProperties};
 use std::fs::File;
 use std::path::PathBuf;
 use std::sync::Arc;
-
-/*
-#[derive(clap::ValueEnum, Clone)]
-#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
-enum ParquetCompression {
-    UNCOMPRESSED,
-    SNAPPY,
-    GZIP,
-    LZO,
-    BROTLI,
-    LZ4,
-    ZSTD,
-}
-
-
-#[derive(clap::ValueEnum, Clone)]
-#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
-enum ParquetEncoding {
-    PLAIN,
-    RLE,
-    BIT_PACKED,
-    DELTA_BINARY_PACKED,
-    DELTA_LENGTH_BYTE_ARRAY,
-    DELTA_BYTE_ARRAY,
-    RLE_DICTIONARY,
-}
-
-#[derive(clap::ValueEnum, Clone)]
-#[allow(non_camel_case_types, clippy::upper_case_acronyms)]
-enum ParquetEnabledStatistics {
-    None,
-    Chunk,
-    Page,
-}
-*/
 
 #[derive(Parser)]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = "Dominik Moritz <domoritz@cmu.edu>")]
@@ -72,17 +32,6 @@ struct Opts {
     #[clap(short, long, default_value = ",")]
     delimiter: char,
 
-    /// Set the compression.
-    /*
-    #[clap(short, long, value_enum)]
-    compression: Option<ParquetCompression>,
-    */
-
-    /// Sets encoding for any column.
-    /*
-        #[clap(short, long, value_enum)]
-        encoding: Option<ParquetEncoding>,
-    */
     /// Sets data page size limit.
     #[clap(long)]
     data_pagesize_limit: Option<usize>,
@@ -107,15 +56,6 @@ struct Opts {
     #[clap(long)]
     dictionary: bool,
 
-    /// Sets flag to enable/disable statistics for any column.
-    /*
-        #[clap(long, value_enum)]
-        statistics: Option<ParquetEnabledStatistics>,
-
-    /// Sets max statistics size for any column. Applicable only if statistics are enabled.
-    #[clap(long)]
-    max_statistics_size: Option<usize>,
-    */
     /// Print the schema to stderr.
     #[clap(short, long)]
     print_schema: bool,
@@ -200,52 +140,8 @@ fn main() -> Result<(), ParquetError> {
         props = props.set_created_by(created_by);
     }
 
-    /*
-        if let Some(statistics) = opts.statistics {
-            let statistics = match statistics {
-                ParquetEnabledStatistics::Chunk => EnabledStatistics::Chunk,
-                ParquetEnabledStatistics::Page => EnabledStatistics::Page,
-                ParquetEnabledStatistics::None => EnabledStatistics::None,
-            };
-
-            props = props.set_statistics_enabled(statistics);
-        }
-
-        if let Some(compression) = opts.compression {
-            let compression = match compression {
-                ParquetCompression::UNCOMPRESSED => Compression::UNCOMPRESSED,
-                ParquetCompression::SNAPPY => Compression::SNAPPY,
-                ParquetCompression::GZIP => Compression::GZIP,
-                ParquetCompression::LZO => Compression::LZO,
-                ParquetCompression::BROTLI => Compression::BROTLI,
-                ParquetCompression::LZ4 => Compression::LZ4,
-                ParquetCompression::ZSTD => Compression::ZSTD,
-            };
-
-            props = props.set_compression(compression);
-        }
-
-        if let Some(encoding) = opts.encoding {
-            let encoding = match encoding {
-                ParquetEncoding::PLAIN => Encoding::PLAIN,
-                ParquetEncoding::RLE => Encoding::RLE,
-                ParquetEncoding::BIT_PACKED => Encoding::BIT_PACKED,
-                ParquetEncoding::DELTA_BINARY_PACKED => Encoding::DELTA_BINARY_PACKED,
-                ParquetEncoding::DELTA_LENGTH_BYTE_ARRAY => Encoding::DELTA_LENGTH_BYTE_ARRAY,
-                ParquetEncoding::DELTA_BYTE_ARRAY => Encoding::DELTA_BYTE_ARRAY,
-                ParquetEncoding::RLE_DICTIONARY => Encoding::RLE_DICTIONARY,
-            };
-
-            props = props.set_encoding(encoding);
-        }
-    */
-    /*
-        if let Some(size) = opts.max_statistics_size {
-            props = props.set_max_statistics_size(size);
-        }
-    */
-
     let schema_ref = Arc::new(schema);
+
     let builder = ReaderBuilder::new()
         .has_header(opts.header.unwrap_or(true))
         .with_delimiter(opts.delimiter as u8)
