@@ -73,8 +73,6 @@ fn main() -> Result<(), ParquetError> {
         }
     }?;
 
-    //    let mut props = WriterProperties::builder().set_dictionary_enabled(opts.dictionary);
-
     let schema_ref = Arc::new(schema);
 
     let builder = ReaderBuilder::new()
