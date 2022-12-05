@@ -36,7 +36,24 @@ struct Opts {
 fn main() -> Result<(), ParquetError> {
     let opts: Opts = Opts::parse();
 
-    let mut input = File::open(opts.input)?;
+    let data = vec![
+        vec!["0"],
+        vec!["1"],
+        vec!["2"],
+        vec!["3"],
+        vec!["4"],
+        vec!["5"],
+        vec!["6"],
+    ];
+
+    let data = data
+        .iter()
+        .map(|x| x.join(","))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let data = data.as_bytes();
+
+    let mut cursor = std::io::Cursor::new(data);
 
     let schema = match opts.schema_file {
         Some(schema_def_file_path) => {
@@ -59,7 +76,7 @@ fn main() -> Result<(), ParquetError> {
         }
         _ => {
             match arrow::csv::reader::infer_file_schema(
-                &mut input,
+                &mut cursor,
                 opts.delimiter as u8,
                 opts.max_read_records,
                 opts.header.unwrap_or(true),
@@ -79,25 +96,6 @@ fn main() -> Result<(), ParquetError> {
         .has_header(opts.header.unwrap_or(true))
         .with_delimiter(opts.delimiter as u8)
         .with_schema(schema_ref);
-
-    let data = vec![
-        vec!["0"],
-        vec!["1"],
-        vec!["2"],
-        vec!["3"],
-        vec!["4"],
-        vec!["5"],
-        vec!["6"],
-    ];
-
-    let data = data
-        .iter()
-        .map(|x| x.join(","))
-        .collect::<Vec<_>>()
-        .join("\n");
-    let data = data.as_bytes();
-
-    let cursor = std::io::Cursor::new(data);
 
     let reader = builder.build(cursor)?;
 
