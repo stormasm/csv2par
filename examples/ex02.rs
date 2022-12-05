@@ -55,39 +55,17 @@ fn main() -> Result<(), ParquetError> {
 
     let opts: Opts = Opts::parse();
 
-    let schema = match opts.schema_file {
-        Some(schema_def_file_path) => {
-            let schema_file = match File::open(&schema_def_file_path) {
-                Ok(file) => Ok(file),
-                Err(error) => Err(ParquetError::General(format!(
-                    "Error opening schema file: {:?}, message: {}",
-                    schema_def_file_path, error
-                ))),
-            }?;
-            let schema: Result<arrow::datatypes::Schema, serde_json::Error> =
-                serde_json::from_reader(schema_file);
-            match schema {
-                Ok(schema) => Ok(schema),
-                Err(err) => Err(ParquetError::General(format!(
-                    "Error reading schema json: {}",
-                    err
-                ))),
-            }
-        }
-        _ => {
-            match arrow::csv::reader::infer_file_schema(
-                &mut cursor,
-                opts.delimiter as u8,
-                opts.max_read_records,
-                opts.header.unwrap_or(true),
-            ) {
-                Ok((schema, _inferred_has_header)) => Ok(schema),
-                Err(error) => Err(ParquetError::General(format!(
-                    "Error inferring schema: {}",
-                    error
-                ))),
-            }
-        }
+    let schema = match arrow::csv::reader::infer_file_schema(
+        &mut cursor,
+        opts.delimiter as u8,
+        opts.max_read_records,
+        opts.header.unwrap_or(true),
+    ) {
+        Ok((schema, _inferred_has_header)) => Ok(schema),
+        Err(error) => Err(ParquetError::General(format!(
+            "Error inferring schema: {}",
+            error
+        ))),
     }?;
 
     let schema_ref = Arc::new(schema);
