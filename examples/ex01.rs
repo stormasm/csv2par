@@ -37,13 +37,13 @@ fn main() -> Result<(), ParquetError> {
     let opts: Opts = Opts::parse();
 
     let data = vec![
-        vec!["0"],
-        vec!["1"],
-        vec!["2"],
-        vec!["3"],
-        vec!["4"],
-        vec!["5"],
-        vec!["6"],
+        vec!["id,entry"],
+        vec!["220101,john ran to the store"],
+        vec!["220102,bill ate cupcakes"],
+        vec!["220103,sue played in her sandbox"],
+        vec!["0,a"],
+        vec!["1,b"],
+        vec!["2,c"],
     ];
 
     let data = data
