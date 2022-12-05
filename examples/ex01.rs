@@ -34,8 +34,6 @@ struct Opts {
 }
 
 fn main() -> Result<(), ParquetError> {
-    let opts: Opts = Opts::parse();
-
     let data = vec![
         vec!["id,entry"],
         vec!["220101,john ran to the store"],
@@ -54,6 +52,8 @@ fn main() -> Result<(), ParquetError> {
     let data = data.as_bytes();
 
     let mut cursor = std::io::Cursor::new(data);
+
+    let opts: Opts = Opts::parse();
 
     let schema = match opts.schema_file {
         Some(schema_def_file_path) => {
