@@ -8,17 +8,9 @@ use std::sync::Arc;
 #[derive(Parser)]
 #[clap(version = env!("CARGO_PKG_VERSION"), author = "Dominik Moritz <domoritz@cmu.edu>")]
 struct Opts {
-    /// Input CSV file.
-    #[clap(name = "CSV", value_parser, value_hint = ValueHint::AnyPath)]
-    input: PathBuf,
-
     /// Output file.
     #[clap(name = "PARQUET", value_parser, value_hint = ValueHint::AnyPath)]
     output: PathBuf,
-
-    /// File with Arrow schema in JSON format.
-    #[clap(short = 's', long, value_parser, value_hint = ValueHint::AnyPath)]
-    schema_file: Option<PathBuf>,
 
     /// The number of records to infer the schema from. All rows if not present. Setting max-read-records to zero will stop schema inference and all columns will be string typed.
     #[clap(long)]
