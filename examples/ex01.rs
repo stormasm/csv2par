@@ -80,7 +80,26 @@ fn main() -> Result<(), ParquetError> {
         .with_delimiter(opts.delimiter as u8)
         .with_schema(schema_ref);
 
-    let reader = builder.build(input)?;
+    let data = vec![
+        vec!["0"],
+        vec!["1"],
+        vec!["2"],
+        vec!["3"],
+        vec!["4"],
+        vec!["5"],
+        vec!["6"],
+    ];
+
+    let data = data
+        .iter()
+        .map(|x| x.join(","))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let data = data.as_bytes();
+
+    let cursor = std::io::Cursor::new(data);
+
+    let reader = builder.build(cursor)?;
 
     let output = File::create(opts.output)?;
 
