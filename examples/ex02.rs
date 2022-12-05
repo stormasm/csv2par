@@ -12,10 +12,6 @@ struct Opts {
     #[clap(name = "PARQUET", value_parser, value_hint = ValueHint::AnyPath)]
     output: PathBuf,
 
-    /// The number of records to infer the schema from. All rows if not present. Setting max-read-records to zero will stop schema inference and all columns will be string typed.
-    #[clap(long)]
-    max_read_records: Option<usize>,
-
     /// Set whether the CSV file has headers
     #[clap(long)]
     header: Option<bool>,
@@ -50,7 +46,7 @@ fn main() -> Result<(), ParquetError> {
     let schema = match arrow::csv::reader::infer_file_schema(
         &mut cursor,
         opts.delimiter as u8,
-        opts.max_read_records,
+        None,
         opts.header.unwrap_or(true),
     ) {
         Ok((schema, _inferred_has_header)) => Ok(schema),
