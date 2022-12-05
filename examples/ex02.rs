@@ -11,10 +11,6 @@ struct Opts {
     /// Output file.
     #[clap(name = "PARQUET", value_parser, value_hint = ValueHint::AnyPath)]
     output: PathBuf,
-
-    /// Set the CSV file's column delimiter as a byte character.
-    #[clap(short, long, default_value = ",")]
-    delimiter: char,
 }
 
 fn main() -> Result<(), ParquetError> {
@@ -39,24 +35,22 @@ fn main() -> Result<(), ParquetError> {
 
     let opts: Opts = Opts::parse();
 
-    let schema = match arrow::csv::reader::infer_file_schema(
-        &mut cursor,
-        opts.delimiter as u8,
-        None,
-        true,
-    ) {
-        Ok((schema, _inferred_has_header)) => Ok(schema),
-        Err(error) => Err(ParquetError::General(format!(
-            "Error inferring schema: {}",
-            error
-        ))),
-    }?;
+    let delimiter: char = ',';
+
+    let schema =
+        match arrow::csv::reader::infer_file_schema(&mut cursor, delimiter as u8, None, true) {
+            Ok((schema, _inferred_has_header)) => Ok(schema),
+            Err(error) => Err(ParquetError::General(format!(
+                "Error inferring schema: {}",
+                error
+            ))),
+        }?;
 
     let schema_ref = Arc::new(schema);
 
     let builder = ReaderBuilder::new()
         .has_header(true)
-        .with_delimiter(opts.delimiter as u8)
+        .with_delimiter(delimiter as u8)
         .with_schema(schema_ref);
 
     let reader = builder.build(cursor)?;
