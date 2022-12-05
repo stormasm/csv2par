@@ -12,10 +12,6 @@ struct Opts {
     #[clap(name = "PARQUET", value_parser, value_hint = ValueHint::AnyPath)]
     output: PathBuf,
 
-    /// Set whether the CSV file has headers
-    #[clap(long)]
-    header: Option<bool>,
-
     /// Set the CSV file's column delimiter as a byte character.
     #[clap(short, long, default_value = ",")]
     delimiter: char,
@@ -47,7 +43,7 @@ fn main() -> Result<(), ParquetError> {
         &mut cursor,
         opts.delimiter as u8,
         None,
-        opts.header.unwrap_or(true),
+        true,
     ) {
         Ok((schema, _inferred_has_header)) => Ok(schema),
         Err(error) => Err(ParquetError::General(format!(
@@ -59,7 +55,7 @@ fn main() -> Result<(), ParquetError> {
     let schema_ref = Arc::new(schema);
 
     let builder = ReaderBuilder::new()
-        .has_header(opts.header.unwrap_or(true))
+        .has_header(true)
         .with_delimiter(opts.delimiter as u8)
         .with_schema(schema_ref);
 
