@@ -62,7 +62,7 @@ pub fn parquet_file_writer(csv: &str) -> Result<(), ParquetError> {
     match writer.close() {
         Ok(_) => Ok(()),
         Err(error) => Err(error),
-    };
+    }
 
-    Ok(())
+    //Ok(())
 }
