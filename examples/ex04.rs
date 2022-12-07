@@ -25,7 +25,6 @@ fn main() -> Result<(), ParquetError> {
 
 pub fn parquet_file_writer(csv: &str) -> Result<(), ParquetError> {
     let data = csv.as_bytes();
-
     let mut cursor = std::io::Cursor::new(data);
 
     let delimiter: char = ',';
@@ -63,6 +62,4 @@ pub fn parquet_file_writer(csv: &str) -> Result<(), ParquetError> {
         Ok(_) => Ok(()),
         Err(error) => Err(error),
     }
-
-    //Ok(())
 }
