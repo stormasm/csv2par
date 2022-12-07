@@ -19,7 +19,12 @@ fn main() -> Result<(), ParquetError> {
         .map(|x| x.join(","))
         .collect::<Vec<_>>()
         .join("\n");
-    let data = data.as_bytes();
+
+    parquet_file_writer(&data)
+}
+
+pub fn parquet_file_writer(csv: &str) -> Result<(), ParquetError> {
+    let data = csv.as_bytes();
 
     let mut cursor = std::io::Cursor::new(data);
 
@@ -57,5 +62,7 @@ fn main() -> Result<(), ParquetError> {
     match writer.close() {
         Ok(_) => Ok(()),
         Err(error) => Err(error),
-    }
+    };
+
+    Ok(())
 }
